@@ -13,20 +13,26 @@ const copiedDirectoryPath = path.join(__dirname, copiedDirectory);
 
 const copy = async () => {
   try {
+    await access(existDirectoryPath, constants.F_OK);
     await access(copiedDirectoryPath, constants.F_OK);
     throw new Error("FS operation failed");
   } catch (error) {
-    console.log(error.message);
+    if (error.code === "ENOENT" && error.path === existDirectoryPath) {
+      console.log("Папки files не существует.");
+      console.error("FS operation failed");
+    } else if (error.message === "FS operation failed") {
+      console.log("Папка files_copy уже существует.");
+      console.error(error.message);
+    } else if (error.code === "ENOENT" && error.path === copiedDirectoryPath) {
+      await cp(existDirectoryPath, copiedDirectoryPath, {
+        recursive: true,
+      });
+      console.log(
+        `Содержимое папки '${existDirectory}' успешно скопировано в папку'${copiedDirectory}'.`
+      );
+      process.exit(0);
+    }
   }
-
-  await cp(existDirectoryPath, copiedDirectoryPath, {
-    recursive: true,
-  });
-
-  console.log(
-    `Папка '${existDirectory}' успешно скопирована в '${copiedDirectory}'.`
-  );
-  process.exit(0);
 };
 
 await copy();

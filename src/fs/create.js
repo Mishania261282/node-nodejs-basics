@@ -21,7 +21,8 @@ const create = async () => {
   try {
     await writeFile(filePath, content, { flag: "wx" });
   } catch (err) {
-    throw new Error("FS operation failed");
+    console.log("Файл fresh.txt уже существует.")
+    console.error("FS operation failed");
   }
 };
 
